@@ -64,9 +64,9 @@ This script automates the entire process:
 (function() {
     'use strict';
 
-    const EXPORTER_VERSION = "2.1.0";
+    const EXPORTER_VERSION = "2.2.0";
     const GITHUB_REPO = "https://github.com/JoaoMRB/chatbot-lmarena-history-export";
-
+    
     console.log(
         `%c LMArena Chat Exporter v${EXPORTER_VERSION} %c ${GITHUB_REPO} `,
         "color: #fff; background: #5b21b6; font-weight: bold; font-size: 12px; padding: 4px; border-radius: 4px 0 0 4px;",
@@ -93,8 +93,8 @@ This script automates the entire process:
             return modeEl ? modeEl.innerText.trim() : "Direct Chat";
         },
         getThought: (container) => {
-            const thoughtBtn = Array.from(container.querySelectorAll('button')).find(b => 
-                /thought|thinking|pensamento/i.test(b.textContent)
+            const thoughtBtn = Array.from(container.querySelectorAll('button')).find(b =>
+                 /thought|thinking|pensamento/i.test(b.textContent)
             );
             if (!thoughtBtn) return null;
             const ariaId = thoughtBtn.getAttribute('aria-controls');
@@ -114,7 +114,7 @@ This script automates the entire process:
             containers.forEach(c => {
                 const prose = c.querySelector('.prose, .markdown');
                 if (!prose) return;
-                const isAssistant = c.innerHTML.includes('sticky') || c.querySelector('button svg') || c.innerText.includes('Model'); 
+                const isAssistant = c.innerHTML.includes('sticky') || c.querySelector('button svg') || c.innerText.includes('Model');
                 const role = isAssistant ? 'assistant' : 'user';
                 const content = Utils.cleanText(prose.innerText);
                 if (content) {
@@ -126,8 +126,8 @@ This script automates the entire process:
                     });
                 }
             });
-            return data.filter((msg, i, self) => 
-                i === 0 || JSON.stringify(msg) !== JSON.stringify(self[i - 1])
+            return data.filter((msg, i, self) =>
+                 i === 0 || JSON.stringify(msg) !== JSON.stringify(self[i - 1])
             );
         }
     };
@@ -156,8 +156,7 @@ This script automates the entire process:
         showExportPage: (markdown) => {
             const win = window.open('', '_blank');
             if (!win) {
-                alert("Pop-up blocked! Please allow pop-ups or check the console for the output.");
-                console.log(markdown);
+                alert("Pop-up blocked! Please allow pop-ups.");
                 return;
             }
             win.document.write(`
@@ -179,33 +178,44 @@ This script automates the entire process:
                         <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-700 pb-6">
                             <div>
                                 <h1 class="text-3xl font-bold text-white">Export Successful</h1>
-                                <p class="text-slate-400 text-sm">Source: <a href="${GITHUB_REPO}" target="_blank">GitHub Repository</a></p>
+                                <p class="text-slate-400 text-sm">Source: <a href="${GITHUB_REPO}" target="_blank">GitHub</a></p>
                             </div>
-                            <div class="flex gap-3">
+                            <div class="flex flex-wrap justify-center gap-3">
                                 <button id="copyBtn" class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-lg">📋 Copy Markdown</button>
-                                <button id="downloadBtn" class="btn bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-lg">💾 Download .md</button>
+                                <button id="downloadMdBtn" class="btn bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-lg">💾 Download .md</button>
+                                <button id="downloadTxtBtn" class="btn bg-sky-600 hover:bg-sky-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-lg">📄 Download .txt</button>
                             </div>
                         </header>
                         <pre id="mdContent" class="shadow-2xl text-slate-300">${markdown.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</pre>
-                        <footer class="mt-8 text-center text-slate-500 text-xs gap-2 flex flex-col">
-                            <p>LMArena Chat Exporter Utility v${EXPORTER_VERSION}</p>
-                            <p><a href="${GITHUB_REPO}" target="_blank">View on GitHub</a></p>
-                        </footer>
                     </div>
                     <script>
                         const text = document.getElementById('mdContent').innerText;
+                        const fileName = 'lmarena-chat-' + Date.now();
+
                         document.getElementById('copyBtn').onclick = () => {
                             navigator.clipboard.writeText(text).then(() => {
-                                const originalText = document.getElementById('copyBtn').innerText;
-                                document.getElementById('copyBtn').innerText = '✅ Copied!';
-                                setTimeout(() => document.getElementById('copyBtn').innerText = originalText, 2000);
+                                const btn = document.getElementById('copyBtn');
+                                const originalText = btn.innerText;
+                                btn.innerText = '✅ Copied!';
+                                setTimeout(() => btn.innerText = originalText, 2000);
                             });
                         };
-                        document.getElementById('downloadBtn').onclick = () => {
+
+                        document.getElementById('downloadMdBtn').onclick = () => {
                             const blob = new Blob([text], {type: 'text/markdown'});
                             const a = document.createElement('a');
                             a.href = URL.createObjectURL(blob);
-                            a.download = 'lmarena-chat-\${Date.now()}.md';
+                            a.download = fileName + '.md';
+                            a.click();
+                        };
+
+                        document.getElementById('downloadTxtBtn').onclick = () => {
+                            // Limpa os símbolos de Markdown para um TXT mais puro
+                            const txtContent = text.replace(/#{1,6}\s/g, '').replace(/\\*\\*/g, '');
+                            const blob = new Blob([txtContent], {type: 'text/plain'});
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(blob);
+                            a.download = fileName + '.txt';
                             a.click();
                         };
                     <\/script>
@@ -219,19 +229,20 @@ This script automates the entire process:
     async function run() {
         const messages = Scraper.getMessages();
         if (messages.length === 0) {
-            alert("❌ No messages found. Make sure the chat is visible on your screen.");
+            alert("❌ No messages found.");
             return;
         }
         const markdown = UI.renderMarkdown(messages);
         const success = await Utils.copy(markdown);
         if (success) {
-            if(confirm("✅ Chat copied to clipboard!\\n\\nWould you like to open the formatted preview/download page?")) {
+            if(confirm("✅ Chat copied to clipboard!\n\nWould you like to open the formatted preview/download page?")) {
                 UI.showExportPage(markdown);
             }
         } else {
             UI.showExportPage(markdown);
         }
     }
+
     run();
 })();
 ```
